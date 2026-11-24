@@ -5,7 +5,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 import crypto from 'node:crypto'
 import { fileURLToPath } from 'node:url'
-import { developments, enquiries, DOCS_DIR, MEDIA_DIR, DATA_DIR } from './store.js'
+import { developments, enquiries, applications, DOCS_DIR, MEDIA_DIR, DATA_DIR, APP_DOCS_DIR } from './store.js'
+import { FIELDS, FILE_FIELDS, STEPS, MAX_FILE_BYTES, validateStep, valueOf, isVisible, summaryRows, APPLICATION_STATUSES } from '../../shared/application.js'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const PORT = Number(process.env.PORT) || 4000
@@ -255,6 +256,125 @@ app.post(
   },
 )
 
+
+// ---------- Housing investor applications ----------
+const APP_TMP = path.join(APP_DOCS_DIR, '_incoming')
+fs.mkdirSync(APP_TMP, { recursive: true })
+const appUpload = multer({
+  storage: multer.diskStorage({
+    destination: APP_TMP,
+    filename: (_req, _file, cb) => cb(null, crypto.randomUUID()),
+  }),
+  limits: { fileSize: MAX_FILE_BYTES, files: FILE_FIELDS.length, fields: 10, fieldSize: 200 * 1024 },
+}).fields(FILE_FIELDS.map((name) => ({ name, maxCount: 1 })))
+
+const removeTemp = (files) => Object.values(files || {}).flat().forEach((f) => fs.rm(f.path, { force: true }, () => {}))
+const headOf = (file) => {
+  const fd = fs.openSync(file, 'r')
+  const buf = Buffer.alloc(16)
+  fs.readSync(fd, buf, 0, 16, 0)
+  fs.closeSync(fd)
+  return buf
+}
+
+/** Keep only known fields, in the shape each field type expects. */
+function cleanValues(raw) {
+  const out = {}
+  for (const [id, f] of Object.entries(FIELDS)) {
+    if (f.type === 'note' || f.type === 'file') continue
+    const v = raw?.[id]
+    if (v == null) continue
+    if (f.type === 'check') out[id] = v === true || v === 'Yes' || v === 'true'
+    else if (f.type === 'multi') out[id] = Array.isArray(v) ? v.map((x) => text(x, 100)).filter((x) => f.options.includes(x)) : []
+    else out[id] = text(v, f.type === 'area' ? 5000 : 300)
+  }
+  out.home = ['Zambia', 'South Africa'].includes(out.country) ? out.country : ''
+  return out
+}
+
+app.post(
+  '/api/applications',
+  rateLimit('application', 6, 60 * 60_000),
+  (req, res, next) =>
+    appUpload(req, res, (err) => {
+      if (err) {
+        removeTemp(req.files)
+        return res.status(400).json({
+          error: err.code === 'LIMIT_FILE_SIZE' ? 'Each document must be 10 MB or smaller.' : 'We could not read your documents. Please try again.',
+        })
+      }
+      next()
+    }),
+  async (req, res) => {
+    const files = req.files || {}
+    let raw
+    try {
+      raw = JSON.parse(req.body.data || '{}')
+    } catch {
+      removeTemp(files)
+      return res.status(400).json({ error: 'The application could not be read. Please try again.' })
+    }
+    const values = cleanValues(raw)
+    const fileMeta = Object.fromEntries(Object.entries(files).map(([k, [f]]) => [k, { size: f.size }]))
+
+    // Validate every step with the same rules as the form
+    for (let n = 0; n < STEPS.length; n++) {
+      const errors = validateStep(n, values, fileMeta)
+      const ids = Object.keys(errors)
+      if (ids.length) {
+        removeTemp(files)
+        return res.status(400).json({ error: `Please check step ${n + 1} (${STEPS[n].title}).`, step: n, errors })
+      }
+    }
+    if (valueOf(values, 'sig').toLowerCase() !== valueOf(values, 'names').toLowerCase()) {
+      removeTemp(files)
+      return res.status(400).json({ error: 'Your signature must match your full names exactly.', step: 6, errors: { sig: 'Type your full names exactly as entered in step 2.' } })
+    }
+
+    // Verify and file each document; drop uploads for fields that are not shown
+    const id = crypto.randomUUID()
+    const dir = path.join(APP_DOCS_DIR, id)
+    const documents = {}
+    try {
+      for (const [field, [f]] of Object.entries(files)) {
+        const type = sniff(headOf(f.path))
+        if (!type || type.mime === 'image/webp') {
+          removeTemp(files)
+          return res.status(400).json({ error: `“${FIELDS[field].label}” must be a PDF, JPG or PNG file.`, step: 5, errors: { [field]: 'Please upload a PDF, JPG or PNG.' } })
+        }
+      }
+      fs.mkdirSync(dir, { recursive: true })
+      const visibleFiles = new Set(STEPS[5].fields.filter((f) => isVisible(f, values)).map((f) => f.id))
+      for (const [field, [f]] of Object.entries(files)) {
+        if (!visibleFiles.has(field)) {
+          fs.rm(f.path, { force: true }, () => {})
+          continue
+        }
+        const type = sniff(headOf(f.path))
+        const stored = `${field}.${type.ext}`
+        fs.renameSync(f.path, path.join(dir, stored))
+        documents[field] = { file: stored, mime: type.mime, size: f.size, original: text(f.originalname, 150) }
+      }
+    } catch (err) {
+      console.error('application upload failed', err)
+      removeTemp(files)
+      fs.rm(dir, { recursive: true, force: true }, () => {})
+      return res.status(500).json({ error: 'We could not store your documents. Please try again.' })
+    }
+
+    const prefix = values.country === 'Zambia' ? 'ZM' : 'ZA'
+    const reference = `HSG-${prefix}-${Date.now().toString(36).toUpperCase()}${crypto.randomBytes(1).toString('hex').toUpperCase()}`
+    try {
+      const doc = await applications.create({ id, reference, values, documents })
+      res.status(201).json({ success: true, reference: doc.reference })
+    } catch (err) {
+      console.error('application save failed', err)
+      fs.rm(dir, { recursive: true, force: true }, () => {})
+      res.status(500).json({ error: 'We could not save your application. Please try again.' })
+    }
+  },
+)
+
 // Public media (development images uploaded by admins)
 app.use('/media', express.static(MEDIA_DIR, { maxAge: '7d', fallthrough: false }))
 
@@ -275,7 +395,7 @@ admin.get('/summary', (_req, res) => {
   const all = enquiries.list()
   const byKind = Object.fromEntries(KINDS.map((k) => [k, all.filter((e) => e.kind === k).length]))
   const byStatus = Object.fromEntries(ENQUIRY_STATUSES.map((s) => [s, all.filter((e) => e.status === s).length]))
-  res.json({ enquiries: all.length, byKind, byStatus, developments: developments.list().length })
+  res.json({ enquiries: all.length, byKind, byStatus, developments: developments.list().length, applications: applications.list().length, newApplications: applications.list().filter((a) => a.status === 'Submitted').length })
 })
 
 admin.get('/enquiries', (req, res) => {
@@ -386,6 +506,65 @@ admin.delete('/developments/:id', async (req, res) => {
   const d = await developments.remove(req.params.id)
   if (!d) return res.status(404).json({ error: 'Development not found' })
   res.json({ success: true })
+})
+
+
+const appSummary = (a) => ({
+  id: a.id,
+  reference: a.reference,
+  status: a.status,
+  names: a.values.names,
+  country: a.values.country,
+  type: a.values.type,
+  email: a.values.email,
+  phone: a.values.phone,
+  createdAt: a.createdAt,
+  documents: Object.keys(a.documents || {}).length,
+})
+admin.get('/applications', (req, res) => {
+  const { status, type, country, q } = req.query
+  let list = applications.list()
+  if (status) list = list.filter((a) => a.status === status)
+  if (type) list = list.filter((a) => a.values.type === type)
+  if (country) list = list.filter((a) => a.values.country === country)
+  if (q) {
+    const s = String(q).toLowerCase()
+    list = list.filter((a) => [a.reference, a.values.names, a.values.email, a.values.idno, a.values.phone].some((v) => v?.toLowerCase().includes(s)))
+  }
+  res.json(list.map(appSummary))
+})
+admin.get('/applications/:id', (req, res) => {
+  const a = applications.byId(req.params.id)
+  if (!a) return res.status(404).json({ error: 'Application not found' })
+  const fileNames = Object.fromEntries(Object.entries(a.documents || {}).map(([k, d]) => [k, d.original || d.file]))
+  res.setHeader('Cache-Control', 'private, no-store')
+  res.json({ ...a, sections: summaryRows(a.values, fileNames), declarations: STEPS[6].fields.map((f) => [f.label, valueOf(a.values, f.id) || '—']) })
+})
+admin.patch('/applications/:id', async (req, res) => {
+  const patch = {}
+  if (req.body.status !== undefined) {
+    if (!APPLICATION_STATUSES.includes(req.body.status)) return res.status(400).json({ error: 'Unknown status.' })
+    patch.status = req.body.status
+  }
+  if (req.body.notes !== undefined) patch.notes = text(req.body.notes, 5000)
+  const a = await applications.update(req.params.id, patch)
+  if (!a) return res.status(404).json({ error: 'Application not found' })
+  res.json(appSummary(a))
+})
+admin.delete('/applications/:id', async (req, res) => {
+  const a = await applications.remove(req.params.id)
+  if (!a) return res.status(404).json({ error: 'Application not found' })
+  fs.rm(path.join(APP_DOCS_DIR, path.basename(a.id)), { recursive: true, force: true }, () => {})
+  res.json({ success: true })
+})
+admin.get('/applications/:id/documents/:field', (req, res) => {
+  const a = applications.byId(req.params.id)
+  const d = a?.documents?.[req.params.field]
+  if (!d) return res.status(404).json({ error: 'Document not found' })
+  res.setHeader('Cache-Control', 'private, no-store')
+  res.setHeader('Content-Type', d.mime)
+  res.setHeader('Content-Disposition', `attachment; filename="${a.reference}-${path.basename(d.file)}"`)
+  fs.createReadStream(path.join(APP_DOCS_DIR, path.basename(a.id), path.basename(d.file))).on('error', () => res.status(404).end()).pipe(res)
 })
 
 app.use('/api/admin', admin)

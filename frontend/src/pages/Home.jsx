@@ -197,6 +197,41 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="mx-auto max-w-[1240px] px-6 py-20 lg:px-0">
+        <div className="grid gap-10 lg:grid-cols-[1fr_1.3fr] lg:items-end">
+          <div>
+            <Eyebrow>Apply for a home</Eyebrow>
+            <SectionHeading>
+              Contribute what you have.
+              <br />
+              Receive a home.
+            </SectionHeading>
+            <p data-reveal className="mt-5 max-w-md text-[13px] leading-7 text-muted">
+              Citizens of Zambia and South Africa can apply online to contribute land, funds or labour — and receive a house or apartment
+              in the completed building.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {[
+              ['Land', 'land', 'Landowner', 'Your plot, transformed into an improved home on any floor you choose.'],
+              ['Funds', 'building', 'Funds', 'Money or building materials towards the building.'],
+              ['Labour', 'people', 'Labour', 'Your skills and time on the building site.'],
+            ].map(([type, icon, t, d]) => (
+              <TLink key={type} href={`/apply?type=${type}`} label="Apply" data-reveal className="apply-teaser group flex flex-col rounded border border-forest/15 bg-white/60 p-6 transition-colors hover:border-forest">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-forest text-gold transition-transform duration-500 group-hover:-rotate-6">
+                  <Icon name={icon} className="h-5 w-5" />
+                </span>
+                <span className="font-heading mt-6 text-lg font-semibold">Investor – {t}</span>
+                <span className="mt-2 flex-1 text-xs leading-6 text-muted">{d}</span>
+                <span className="mt-5 inline-flex items-center gap-2 text-xs font-semibold">
+                  Apply now <Icon className="h-3.5 w-3.5 transition-transform duration-500 group-hover:translate-x-1" />
+                </span>
+              </TLink>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <Transformation />
 
       <section className="mx-auto max-w-[1240px] px-6 py-20 lg:px-0">

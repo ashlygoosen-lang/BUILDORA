@@ -33,6 +33,7 @@ export function Footer() {
           {[
             ['For landowners', '/landowners'],
             ['For investors', '/investors'],
+            ['Apply for a home', '/apply'],
             ['Strategic partnerships', '/contact'],
             ['Get in touch', '/contact'],
           ].map(([l, h]) => (

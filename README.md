@@ -68,3 +68,14 @@ Both enquiry types are validated on the server; their extra fields are stored un
 ## Photography credits
 
 Construction and machinery photos are free to use under the [Unsplash License](https://unsplash.com/license) and are served from Unsplash's CDN (`frontend/src/lib/photos.js`). Photographers: Zizi zi, Lachlan Cormie, Claus Grünstäudl, Kouji Tsuru, John Kakuk, Scott Webb, Jacek Dylag, Scott Blake, Erik Mclean, Thomas Leblanc.
+
+## Housing investor application (`/apply`)
+
+A 7-step application for citizens of Zambia and South Africa to contribute **land, funds or labour** and receive a home: Eligibility, Identity, Contact, Contribution, Finances, Documents, Review and signature.
+
+- Field definitions, show/hide conditions and validation live in `shared/application.js`, which both the React form and the API import, so the browser and the server apply identical rules.
+- The form keeps drafts in the browser (documents must be re-attached), shows a review screen with Edit links, requires the signature to match the applicant's full names, and shows upload progress.
+- `POST /api/applications` takes multipart data: a `data` JSON field plus one file per document field. Each document may be up to 10 MB; the server checks file contents (PDF, JPG or PNG only) and discards uploads for documents that don't apply to the applicant.
+- Documents are stored privately under `DATA_DIR/application-documents/<id>/` and can only be downloaded by a signed-in admin.
+- Admin **Applications** tab: filter, full review by section, document downloads, status pipeline (Submitted, Documents verified, Plan approved, Title deed issued, Building in progress, Handed over, More information needed, Declined) with history, internal notes, and delete.
+- Link to a specific contribution type with `/apply?type=Land`, `/apply?type=Funds` or `/apply?type=Labour`.

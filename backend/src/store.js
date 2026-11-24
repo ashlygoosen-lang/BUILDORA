@@ -10,9 +10,10 @@ const here = path.dirname(fileURLToPath(import.meta.url))
 export const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(here, '..', 'data'))
 export const DOCS_DIR = path.join(DATA_DIR, 'land-documents') // private, staff only
 export const MEDIA_DIR = path.join(DATA_DIR, 'media') // public development images
+export const APP_DOCS_DIR = path.join(DATA_DIR, 'application-documents') // private, staff only
 const DB_FILE = path.join(DATA_DIR, 'db.json')
 
-for (const dir of [DATA_DIR, DOCS_DIR, MEDIA_DIR]) fs.mkdirSync(dir, { recursive: true })
+for (const dir of [DATA_DIR, DOCS_DIR, MEDIA_DIR, APP_DOCS_DIR]) fs.mkdirSync(dir, { recursive: true })
 
 let db
 function load() {
@@ -28,11 +29,13 @@ function load() {
         updatedAt: now,
       })),
       enquiries: [],
+      applications: [],
     }
     persist()
   }
   db.developments ??= []
   db.enquiries ??= []
+  db.applications ??= []
 }
 
 let writing = Promise.resolve()
@@ -121,6 +124,34 @@ export const enquiries = {
     const i = db.enquiries.findIndex((e) => e.id === id)
     if (i < 0) return null
     const [doc] = db.enquiries.splice(i, 1)
+    await persist()
+    return doc
+  },
+}
+
+export const applications = {
+  list: () => [...db.applications].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+  byId: (id) => db.applications.find((a) => a.id === id),
+  async create(doc) {
+    const now = new Date().toISOString()
+    const full = { status: 'Submitted', notes: '', history: [{ status: 'Submitted', at: now }], ...doc, createdAt: now, updatedAt: now }
+    db.applications.push(full)
+    await persist()
+    return full
+  },
+  async update(id, data) {
+    const doc = this.byId(id)
+    if (!doc) return null
+    const now = new Date().toISOString()
+    if (data.status && data.status !== doc.status) doc.history = [...(doc.history || []), { status: data.status, at: now }]
+    Object.assign(doc, data, { updatedAt: now })
+    await persist()
+    return doc
+  },
+  async remove(id) {
+    const i = db.applications.findIndex((a) => a.id === id)
+    if (i < 0) return null
+    const [doc] = db.applications.splice(i, 1)
     await persist()
     return doc
   },

@@ -92,6 +92,26 @@ function Cards({ items }) {
     </div>
   )
 }
+
+export function ApplyCallout({ type, title, text }) {
+  return (
+    <section data-reveal className="apply-callout relative isolate my-14 overflow-hidden rounded bg-forest px-7 py-10 text-white md:px-12 md:py-12">
+      <span className="pointer-events-none absolute -right-24 -top-24 -z-10 h-80 w-80 rounded-full border border-white/10" aria-hidden="true" />
+      <span className="pointer-events-none absolute -right-10 -top-10 -z-10 h-52 w-52 rounded-full border border-gold/25" aria-hidden="true" />
+      <div className="flex flex-col justify-between gap-8 md:flex-row md:items-center">
+        <div className="max-w-xl">
+          <p className="text-[10px] font-semibold uppercase tracking-[2px] text-gold">Housing investor application</p>
+          <h2 className="font-heading mt-3 text-[28px] leading-tight font-semibold tracking-[-1px] md:text-[34px]">{title}</h2>
+          <p className="mt-3 text-sm leading-7 text-white/70">{text}</p>
+        </div>
+        <Button href={type ? `/apply?type=${type}` : '/apply'} gold>
+          Start Application
+        </Button>
+      </div>
+    </section>
+  )
+}
+
 export function ContentPage({ page }) {
   const [eyebrow, title, description] = pageData[page]
   usePageMeta(eyebrow === 'Let’s talk' ? 'Contact' : eyebrow, description)
@@ -178,6 +198,10 @@ export function ContentPage({ page }) {
               feasibility and project-specific legal agreements. We encourage independent legal and
               financial advice.
             </p>
+            <ApplyCallout
+              title="Contribute land, funds or labour."
+              text="Every contributor receives a home in the completed building. Apply online in 7 steps and upload your documents securely."
+            />
           </section>
         </>
       )}
@@ -213,6 +237,11 @@ export function ContentPage({ page }) {
               ]}
             />
           </div>
+          <ApplyCallout
+            type="Land"
+            title="Ready to contribute your land?"
+            text="Apply as a landowner investor and receive one house or apartment equivalent to your current home — but improved — on any floor you choose."
+          />
           <div className="mb-8">
             <Eyebrow>Take the first step</Eyebrow>
             <SectionHeading>Let’s explore what’s possible.</SectionHeading>
@@ -261,6 +290,11 @@ export function ContentPage({ page }) {
               Explore Our Development Vision
             </Button>
           </div>
+          <ApplyCallout
+            type="Funds"
+            title="Invest funds or materials in a home."
+            text="Contribute money or building materials and receive one house or apartment in the building. Citizens of Zambia and South Africa can apply online."
+          />
           <EnquiryForm kind="Investor" />
         </section>
       )}

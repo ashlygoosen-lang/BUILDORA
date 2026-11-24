@@ -6,6 +6,7 @@ import { TLink } from '../lib/transition'
 export const services = [
   ['Construction', '/construction', 'building', 'Modern residential, commercial and industrial buildings.'],
   ['Equipment & Machinery', '/equipment', 'excavator', 'Sourcing new & used plant — buy, hire or lease.'],
+  ['Apply for a Home', '/apply', 'doc', 'Contribute land, funds or labour and receive a home.'],
 ]
 
 export const links = [

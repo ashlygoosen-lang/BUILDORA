@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api, clearApiCache, usePageMeta } from '../lib/api'
 import { Icon, LogoMark } from '../components/brand'
+import { APPLICATION_STATUSES, FIELDS } from '../../../shared/application.js'
 
 const KEY = 'buildora-admin-token'
 const field = 'mt-1.5 block w-full rounded-sm border border-forest/20 bg-white px-3 py-2.5 text-sm outline-none focus:border-forest'
@@ -106,7 +107,7 @@ function Login({ onToken }) {
 }
 
 function Dashboard({ token, onSignOut }) {
-  const [tab, setTab] = useState('enquiries')
+  const [tab, setTab] = useState('applications')
   const [summary, setSummary] = useState(null)
   const auth = { token }
   const guard = useCallback(
@@ -145,12 +146,12 @@ function Dashboard({ token, onSignOut }) {
         {summary && (
           <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-6">
             {[
+              ['Applications', summary.applications],
+              ['New applications', summary.newApplications],
               ['All enquiries', summary.enquiries],
-              ['New', summary.byStatus.New],
               ['Landowner', summary.byKind.Landowner],
               ['Investor', summary.byKind.Investor],
               ['Construction', summary.byKind.Construction],
-              ['Equipment', summary.byKind.Equipment],
             ].map(([k, v]) => (
               <div key={k} className="rounded bg-white p-4">
                 <p className="text-[10px] uppercase tracking-[1.5px] text-muted">{k}</p>
@@ -161,6 +162,7 @@ function Dashboard({ token, onSignOut }) {
         )}
         <div className="mb-6 flex gap-2">
           {[
+            ['applications', 'Applications'],
             ['enquiries', 'Enquiries'],
             ['developments', 'Developments'],
           ].map(([k, l]) => (
@@ -174,7 +176,9 @@ function Dashboard({ token, onSignOut }) {
             </button>
           ))}
         </div>
-        {tab === 'enquiries' ? (
+        {tab === 'applications' ? (
+          <ApplicationsAdmin auth={auth} guard={guard} onChange={loadSummary} />
+        ) : tab === 'enquiries' ? (
           <Enquiries auth={auth} guard={guard} onChange={loadSummary} />
         ) : (
           <DevelopmentsAdmin auth={auth} guard={guard} onChange={loadSummary} />
@@ -483,6 +487,182 @@ function DevelopmentsAdmin({ auth, guard, onChange }) {
               </button>
             </div>
           </form>
+        )}
+      </aside>
+    </div>
+  )
+}
+
+function ApplicationsAdmin({ auth, guard, onChange }) {
+  const [list, setList] = useState([])
+  const [filters, setFilters] = useState({ status: '', type: '', country: '', q: '' })
+  const [open, setOpen] = useState(null)
+  const load = useCallback(() => {
+    const qs = new URLSearchParams(Object.entries(filters).filter(([, v]) => v)).toString()
+    return api.get(`/api/admin/applications${qs ? `?${qs}` : ''}`, auth).then(setList).catch(guard)
+  }, [filters, auth.token, guard]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    load()
+  }, [load])
+
+  const openApp = (id) => api.get(`/api/admin/applications/${id}`, auth).then(setOpen).catch(guard)
+  const update = async (patch) => {
+    const r = await api.patch(`/api/admin/applications/${open.id}`, patch, auth).catch(guard)
+    if (r) {
+      await openApp(open.id)
+      load()
+      onChange()
+    }
+  }
+  const remove = async () => {
+    if (!confirm(`Delete application ${open.reference} and all its documents? This cannot be undone.`)) return
+    await api.del(`/api/admin/applications/${open.id}`, auth).catch(guard)
+    setOpen(null)
+    load()
+    onChange()
+  }
+  const download = async (field) => {
+    const res = await fetch(`/api/admin/applications/${open.id}/documents/${field}`, { headers: { authorization: `Bearer ${auth.token}` } })
+    if (!res.ok) return alert('Document unavailable.')
+    const d = open.documents[field]
+    const url = URL.createObjectURL(await res.blob())
+    const a = Object.assign(document.createElement('a'), { href: url, download: `${open.reference}-${d.file}` })
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(url), 2000)
+  }
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-[1fr_1.25fr]">
+      <div className="h-fit rounded bg-white">
+        <div className="grid gap-3 border-b border-forest/10 p-4 sm:grid-cols-2">
+          <input
+            placeholder="Search name, reference, ID, phone…"
+            className={`${field} mt-0 sm:col-span-2`}
+            value={filters.q}
+            onChange={(e) => setFilters({ ...filters, q: e.target.value })}
+          />
+          <select className={`${field} mt-0`} value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })}>
+            <option value="">All statuses</option>
+            {APPLICATION_STATUSES.map((k) => (
+              <option key={k}>{k}</option>
+            ))}
+          </select>
+          <div className="grid grid-cols-2 gap-3">
+            <select className={`${field} mt-0`} value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
+              <option value="">All types</option>
+              {['Land', 'Funds', 'Labour'].map((k) => (
+                <option key={k}>{k}</option>
+              ))}
+            </select>
+            <select className={`${field} mt-0`} value={filters.country} onChange={(e) => setFilters({ ...filters, country: e.target.value })}>
+              <option value="">Both countries</option>
+              {['Zambia', 'South Africa'].map((k) => (
+                <option key={k}>{k}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        {list.length === 0 ? (
+          <p className="p-10 text-center text-sm text-muted">No applications yet.</p>
+        ) : (
+          <ul className="divide-y divide-forest/10">
+            {list.map((a) => (
+              <li key={a.id}>
+                <button
+                  onClick={() => openApp(a.id)}
+                  className={`flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left transition-colors hover:bg-[#f6f3ec] ${open?.id === a.id ? 'bg-[#f6f3ec]' : ''}`}
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium">{a.names}</span>
+                    <span className="block truncate text-[11px] text-muted">
+                      {a.reference} · {a.type} · {a.country} · {fmt(a.createdAt)}
+                    </span>
+                  </span>
+                  <span className="shrink-0 rounded-full bg-forest/8 px-2.5 py-1 text-[10px] font-medium">{a.status}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <aside className="rounded bg-white p-6">
+        {!open ? (
+          <p className="text-sm text-muted">Select an application to review it.</p>
+        ) : (
+          <div>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-[10px] uppercase tracking-[1.5px] text-muted">
+                  {open.reference} · Investor – {open.values.type} · {open.values.country}
+                </p>
+                <h2 className="font-heading mt-1 text-xl font-semibold">{open.values.names}</h2>
+                <p className="text-xs text-muted">Submitted {fmt(open.createdAt)}</p>
+              </div>
+              <label className="text-xs">
+                Status
+                <select className={`${field} min-w-52`} value={open.status} onChange={(e) => update({ status: e.target.value })}>
+                  {APPLICATION_STATUSES.map((s) => (
+                    <option key={s}>{s}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <ol className="mt-4 flex flex-wrap gap-2 text-[10px]">
+              {(open.history || []).map((h, i) => (
+                <li key={i} className="rounded-full bg-[#f6f3ec] px-3 py-1">
+                  {h.status} · {new Date(h.at).toLocaleDateString('en-ZA')}
+                </li>
+              ))}
+            </ol>
+
+            <h3 className="font-heading mt-6 text-sm font-semibold">Documents</h3>
+            <ul className="mt-2 grid gap-2">
+              {Object.entries(open.documents || {}).map(([k, d]) => (
+                <li key={k}>
+                  <button onClick={() => download(k)} className="flex w-full items-center gap-3 rounded border border-forest/15 px-3 py-2 text-left text-xs hover:bg-forest/5">
+                    <Icon name="doc" className="h-4 w-4 text-gold" />
+                    <span className="flex-1">{FIELDS[k]?.label || k}</span>
+                    <span className="text-muted">{Math.max(1, Math.round(d.size / 1024))} KB ↓</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-6 grid gap-3">
+              {open.sections.map(([title, rows], i) => (
+                <details key={title} open={i < 2} className="rounded border border-forest/12">
+                  <summary className="cursor-pointer bg-[#f6f3ec] px-4 py-2.5 text-sm font-semibold">
+                    {i + 1}. {title}
+                  </summary>
+                  <dl className="text-xs">
+                    {rows.map(([k, v]) => (
+                      <div key={k} className="grid grid-cols-[1fr_1.2fr] gap-3 border-t border-forest/8 px-4 py-2">
+                        <dt className="text-muted">{k}</dt>
+                        <dd className="break-words">{v}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </details>
+              ))}
+              <details className="rounded border border-forest/12">
+                <summary className="cursor-pointer bg-[#f6f3ec] px-4 py-2.5 text-sm font-semibold">7. Declarations & signature</summary>
+                <dl className="text-xs">
+                  {open.declarations.map(([k, v]) => (
+                    <div key={k} className="grid grid-cols-[1fr_auto] gap-3 border-t border-forest/8 px-4 py-2">
+                      <dt className="text-muted">{k}</dt>
+                      <dd className="font-medium">{v}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </details>
+            </div>
+
+            <NotesField key={open.id} value={open.notes} onSave={(notes) => update({ notes })} />
+            <button onClick={remove} className="mt-6 text-xs text-red-700 hover:underline">
+              Delete application
+            </button>
+          </div>
         )}
       </aside>
     </div>

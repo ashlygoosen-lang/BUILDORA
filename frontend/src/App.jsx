@@ -12,6 +12,7 @@ import NotFound from './pages/NotFound'
 import Admin from './pages/Admin'
 import Construction from './pages/Construction'
 import Equipment from './pages/Equipment'
+import Apply from './pages/Apply'
 
 function Site() {
   const location = useLocation()
@@ -36,6 +37,7 @@ function Site() {
             <Route path="/developments/:slug" element={<DevelopmentDetail />} />
             <Route path="/construction" element={<Construction />} />
             <Route path="/equipment" element={<Equipment />} />
+            <Route path="/apply" element={<Apply />} />
             {['about', 'landowners', 'investors', 'how-it-works', 'impact', 'contact'].map((p) => (
               <Route key={p} path={`/${p}`} element={<ContentPage page={p} />} />
             ))}
