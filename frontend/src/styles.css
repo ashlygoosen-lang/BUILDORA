@@ -1,0 +1,946 @@
+@import 'tailwindcss';
+@theme {
+  --color-forest: #183b35;
+  --color-gold: #d1a66b;
+  --color-ivory: #f6f3ec;
+  --color-muted: #727770;
+  --color-sage: #a7b5a1;
+  --font-heading: 'Manrope', sans-serif;
+  --font-sans: 'Inter', sans-serif;
+}
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 30px;
+  }
+  body {
+    background: #f6f3ec;
+    color: #183b35;
+    font-family: var(--font-sans);
+  }
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: 2px solid #b88b51;
+    outline-offset: 5px;
+  }
+  ::selection {
+    background: #d1a66b66;
+  }
+}
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 999;
+  transform: translateY(-150%);
+  background: #183b35;
+  color: white;
+  padding: 12px;
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Buildora motion language: architectural, measured, and progressively enhanced. */
+@theme {
+  --ease-architectural: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes buildora-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes buildora-line {
+  from {
+    opacity: 0.1;
+    transform: translate3d(0, 108%, 0) rotate(1.5deg);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0);
+  }
+}
+@keyframes buildora-image {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+@keyframes buildora-settle {
+  from {
+    transform: scale(1.1);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes buildora-line-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes buildora-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.motion-button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition:
+    background-color 240ms,
+    box-shadow 400ms,
+    translate 450ms var(--ease-architectural),
+    transform 400ms var(--ease-architectural);
+}
+.motion-button::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 20%, #ffffff25 50%, transparent 80%);
+  transform: translateX(-130%);
+  transition: transform 750ms var(--ease-architectural);
+}
+.motion-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.motion-button:disabled {
+  cursor: default;
+}
+.motion-nav-link::before {
+  content: '';
+  position: absolute;
+  height: 1px;
+  bottom: 27px;
+  left: 0;
+  width: 100%;
+  background: var(--color-gold);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 350ms var(--ease-architectural);
+}
+.motion-nav-link:hover::before,
+.motion-nav-link:focus-visible::before {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+.menu-toggle {
+  position: relative;
+  width: 22px;
+  height: 18px;
+}
+.menu-toggle span {
+  position: absolute;
+  left: 0;
+  top: 5px;
+  height: 1.5px;
+  width: 22px;
+  background: currentColor;
+  transition:
+    transform 350ms var(--ease-architectural),
+    top 350ms var(--ease-architectural);
+}
+.menu-toggle span + span {
+  top: 12px;
+  width: 16px;
+}
+.menu-toggle[data-open='true'] span {
+  top: 8px;
+  transform: rotate(45deg);
+}
+.menu-toggle[data-open='true'] span + span {
+  width: 22px;
+  transform: rotate(-45deg);
+}
+.motion-menu {
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity 240ms,
+    transform 350ms var(--ease-architectural),
+    visibility 350ms;
+}
+.motion-menu[data-open='true'] {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+.motion-menu a {
+  opacity: 0;
+  transform: translateX(-8px);
+  transition:
+    opacity 250ms,
+    transform 400ms var(--ease-architectural),
+    color 200ms;
+}
+.motion-menu[data-open='true'] a {
+  opacity: 1;
+  transform: translateX(0);
+}
+.motion-menu[data-open='true'] a:nth-child(2) {
+  transition-delay: 25ms;
+}
+.motion-menu[data-open='true'] a:nth-child(3) {
+  transition-delay: 50ms;
+}
+.motion-menu[data-open='true'] a:nth-child(4) {
+  transition-delay: 75ms;
+}
+.motion-menu[data-open='true'] a:nth-child(5) {
+  transition-delay: 100ms;
+}
+.motion-menu[data-open='true'] a:nth-child(6) {
+  transition-delay: 125ms;
+}
+.motion-menu[data-open='true'] a:nth-child(7) {
+  transition-delay: 150ms;
+}
+.hero-line {
+  display: block;
+  overflow: clip;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+.hero-line > span {
+  display: block;
+}
+.motion-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.motion-cta::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: 65%;
+  height: 180%;
+  right: -18%;
+  top: -40%;
+  border: 1px solid #183b3510;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.project-card {
+  display: block;
+  perspective: 1200px;
+}
+.project-card > div:first-child {
+  transition:
+    transform 650ms var(--ease-architectural),
+    box-shadow 650ms var(--ease-architectural);
+}
+.project-arrow {
+  transition:
+    background-color 300ms,
+    color 300ms,
+    transform 500ms var(--ease-architectural);
+}
+.motion-feature > svg {
+  transition:
+    transform 500ms var(--ease-architectural),
+    color 300ms;
+}
+.motion-filter {
+  transition:
+    color 240ms,
+    background-color 240ms,
+    border-color 240ms,
+    transform 300ms var(--ease-architectural);
+}
+.motion-form :is(input, textarea, select) {
+  transition:
+    border-color 220ms,
+    box-shadow 220ms,
+    background-color 220ms;
+}
+.motion-form :is(input, textarea, select):focus-visible {
+  box-shadow: 0 0 0 3px #d1a66b25;
+}
+.motion-spinner {
+  height: 12px;
+  width: 12px;
+  border: 1px solid #ffffff50;
+  border-top-color: white;
+  border-radius: 50%;
+  animation: buildora-spin 800ms linear infinite;
+}
+.motion-form [role='status']:not(:empty) {
+  animation: buildora-rise 350ms var(--ease-architectural) both;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .motion-scene {
+    animation: buildora-rise 550ms var(--ease-architectural) backwards;
+  }
+  .buildora-hero .motion-eyebrow {
+    animation: buildora-rise 750ms 80ms var(--ease-architectural) both;
+  }
+  .hero-line > span {
+    animation: buildora-line 1100ms var(--ease-architectural) both;
+  }
+  .hero-line:nth-child(1) > span {
+    animation-delay: 130ms;
+  }
+  .hero-line:nth-child(2) > span {
+    animation-delay: 260ms;
+  }
+  .hero-line:nth-child(3) > span {
+    animation-delay: 390ms;
+  }
+  .hero-copy {
+    animation: buildora-rise 950ms 480ms var(--ease-architectural) both;
+  }
+  .hero-actions {
+    animation: buildora-rise 900ms 580ms var(--ease-architectural) both;
+  }
+  .hero-note {
+    animation: buildora-rise 900ms 700ms var(--ease-architectural) both;
+  }
+  .hero-visual {
+    animation: buildora-image 1250ms 100ms var(--ease-architectural) both;
+  }
+  .hero-image-plane img {
+    animation: buildora-settle 2400ms 100ms var(--ease-architectural) both;
+  }
+  .hero-caption {
+    animation: buildora-rise 1000ms 800ms var(--ease-architectural) both;
+  }
+  .hero-seal {
+    animation: buildora-rise 1000ms 950ms var(--ease-architectural) both;
+  }
+  .page-intro h1 {
+    animation: buildora-rise 900ms 100ms var(--ease-architectural) both;
+  }
+  .page-intro > p:last-child {
+    animation: buildora-rise 900ms 220ms var(--ease-architectural) both;
+  }
+  [data-motion-state='pending'] {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+  [data-motion-state='visible'] {
+    animation: buildora-rise 850ms var(--reveal-delay, 0ms) var(--ease-architectural) both;
+  }
+  [data-reveal='image'][data-motion-state='visible'] {
+    animation: buildora-rise 1100ms var(--ease-architectural) both;
+  }
+  [data-reveal='image'][data-motion-state='visible'] img {
+    animation: buildora-settle 1700ms var(--ease-architectural) both;
+  }
+  [data-reveal]:focus-within {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .motion-eyebrow[data-motion-state='visible'] > span {
+    transform-origin: left;
+    animation: buildora-line-grow 800ms var(--ease-architectural) both;
+  }
+  .plot-stage:nth-child(2),
+  .motion-feature:nth-child(3n + 2),
+  .project-card:nth-child(2) {
+    --reveal-delay: 90ms;
+  }
+  .plot-stage:nth-child(3),
+  .motion-feature:nth-child(3n + 3),
+  .project-card:nth-child(3) {
+    --reveal-delay: 180ms;
+  }
+  .plot-stage:nth-child(4) {
+    --reveal-delay: 270ms;
+  }
+  .plot-stage[data-motion-state='visible'] svg {
+    animation: buildora-rise 1200ms var(--reveal-delay, 0ms) var(--ease-architectural) both;
+  }
+  .plot-stage[data-motion-state='visible'] > div > span {
+    animation: buildora-line-grow 900ms var(--reveal-delay, 0ms) var(--ease-architectural) both;
+  }
+  .project-grid,
+  .project-empty {
+    animation: buildora-rise 500ms var(--ease-architectural) both;
+  }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .motion-button:hover:not(:disabled) {
+    box-shadow: 0 8px 22px -10px #183b3560;
+  }
+  .motion-button:hover::before {
+    transform: translateX(130%);
+  }
+  .project-card:hover > div:first-child,
+  .project-card:focus-visible > div:first-child {
+    transform: translateY(-5px) rotateX(1deg);
+    box-shadow: 0 20px 32px -22px #183b3580;
+  }
+  .project-card:hover .project-arrow {
+    transform: rotate(45deg);
+    background: var(--color-forest);
+    color: white;
+  }
+  .motion-feature:hover > svg {
+    transform: translateY(-4px) rotate(-5deg);
+    color: var(--color-forest);
+  }
+  .motion-filter:hover {
+    transform: translateY(-2px);
+  }
+  .plot-stage svg {
+    transition: transform 650ms var(--ease-architectural);
+  }
+  .plot-stage:hover svg {
+    transform: translateY(-5px);
+  }
+  footer a {
+    transition: color 250ms;
+  }
+}
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  [data-magnetic] {
+    translate: var(--magnet-x, 0px) var(--magnet-y, 0px);
+  }
+  @supports (animation-timeline: view()) {
+    .hero-image-plane {
+      animation: buildora-parallax linear both;
+      animation-timeline: view();
+      animation-range: exit;
+    }
+    @keyframes buildora-parallax {
+      to {
+        transform: translateY(12%);
+      }
+    }
+    .motion-image img,
+    .motion-image[data-motion-state='visible'] img {
+      animation: buildora-image-depth linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+    @keyframes buildora-image-depth {
+      from {
+        transform: scale(1.07) translateY(-2%);
+      }
+      to {
+        transform: scale(1.07) translateY(2%);
+      }
+    }
+  }
+}
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  .hero-visual {
+    animation: buildora-rise 850ms 250ms var(--ease-architectural) both;
+  }
+  .hero-image-plane img {
+    animation: buildora-settle 1600ms var(--ease-architectural) both;
+  }
+  .hero-line > span {
+    animation-duration: 850ms;
+  }
+  [data-motion-state='pending'] {
+    transform: translate3d(0, 14px, 0);
+  }
+  [data-motion-state='visible'] {
+    animation-duration: 600ms;
+    --reveal-delay: 0ms;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-motion-state='pending'] {
+    opacity: 1;
+    transform: none;
+  }
+  [data-magnetic] {
+    translate: none;
+  }
+  .motion-menu,
+  .motion-menu a,
+  .menu-toggle span {
+    transition: none;
+  }
+  .motion-spinner {
+    border-color: white;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-card img,
+  .motion-button svg {
+    transform: none !important;
+  }
+}
+
+/* ==========================================================================
+   Buildora premium motion layer — extends the architectural motion language.
+   Everything below is GPU-friendly (transform / opacity / clip-path) and is
+   disabled under prefers-reduced-motion. Heavy effects are desktop-only.
+   ========================================================================== */
+@keyframes buildora-curtain-in {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes buildora-curtain-out {
+  from { clip-path: inset(0 0 0 0); }
+  to { clip-path: inset(0 0 100% 0); }
+}
+@keyframes buildora-draw {
+  from { stroke-dashoffset: var(--len, 420); }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes buildora-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(6%, -8%, 0) scale(1.12); }
+}
+@keyframes buildora-drift-alt {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
+  50% { transform: translate3d(-8%, 6%, 0) scale(0.95); }
+}
+@keyframes buildora-rotate {
+  to { transform: rotate(360deg); }
+}
+@keyframes buildora-sheen {
+  from { background-position: 120% 0; }
+  to { background-position: -20% 0; }
+}
+@keyframes buildora-ken {
+  from { transform: scale(1.04) translate3d(0, 0, 0); }
+  to { transform: scale(1.1) translate3d(-1.5%, -1%, 0); }
+}
+@keyframes buildora-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes buildora-bar {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes buildora-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.35); }
+}
+
+/* --- Header: sticky, condenses with a frosted surface, hides on scroll down --- */
+.site-header {
+  position: sticky;
+  top: 0;
+  transition:
+    transform 550ms var(--ease-architectural),
+    background-color 400ms,
+    box-shadow 400ms,
+    border-color 400ms;
+}
+.site-header[data-scrolled='true'] {
+  background: rgb(246 243 236 / 0.82);
+  backdrop-filter: saturate(1.4) blur(14px);
+  -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  box-shadow: 0 10px 30px -24px #183b3560;
+}
+.site-header[data-hidden='true'] {
+  transform: translate3d(0, -100%, 0);
+}
+.site-header > div:first-child {
+  transition: height 450ms var(--ease-architectural);
+}
+.site-header[data-scrolled='true'] > div:first-child {
+  height: 72px;
+}
+.site-header[data-scrolled='true'] .motion-nav-link {
+  padding-block: 27px;
+}
+.site-header[data-scrolled='true'] .motion-nav-link::before { bottom: 19px; }
+
+/* Sliding active-page indicator */
+.nav-indicator {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  height: 4px;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--color-gold);
+  transform: translateX(var(--x, 0px));
+  opacity: var(--o, 0);
+  transition:
+    transform 600ms var(--ease-architectural),
+    opacity 300ms,
+    bottom 450ms var(--ease-architectural);
+  pointer-events: none;
+}
+.site-header[data-scrolled='true'] .nav-indicator { bottom: 12px; }
+
+/* Scroll progress hairline */
+.scroll-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 2px;
+  z-index: 60;
+  background: linear-gradient(90deg, #d1a66b, #e9cf9f 60%, #a7b5a1);
+  transform-origin: left;
+  transform: scaleX(var(--progress, 0));
+  pointer-events: none;
+}
+
+/* --- Intro loader (first visit only) --- */
+.intro-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--color-forest);
+  color: var(--color-ivory);
+}
+.intro-loader[data-state='leaving'] {
+  animation: buildora-curtain-out 900ms var(--ease-architectural) forwards;
+}
+.intro-loader .intro-mark path {
+  stroke-dasharray: var(--len, 120);
+  stroke-dashoffset: var(--len, 120);
+  animation: buildora-draw 1100ms var(--ease-architectural) forwards;
+}
+.intro-loader .intro-mark path + path { animation-delay: 350ms; }
+.intro-loader .intro-word {
+  display: block;
+  overflow: clip;
+}
+.intro-loader .intro-word > span {
+  display: inline-block;
+  animation: buildora-line 1000ms 250ms var(--ease-architectural) both;
+}
+.intro-loader .intro-bar {
+  height: 1px;
+  width: 160px;
+  background: #ffffff22;
+  overflow: hidden;
+}
+.intro-loader .intro-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--color-gold);
+  transform-origin: left;
+  animation: buildora-bar 1300ms 200ms var(--ease-architectural) both;
+}
+.intro-loader .intro-tag {
+  animation: buildora-fade 800ms 700ms both;
+}
+
+/* --- Cinematic page transition curtain --- */
+.page-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  background: var(--color-forest);
+  clip-path: inset(100% 0 0 0);
+  display: grid;
+  place-items: center;
+}
+.page-curtain::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: var(--color-gold);
+}
+.page-curtain[data-state='cover'] {
+  animation: buildora-curtain-in 480ms var(--ease-architectural) forwards;
+  pointer-events: auto;
+}
+.page-curtain[data-state='reveal'] {
+  clip-path: inset(0 0 0 0);
+  animation: buildora-curtain-out 700ms 60ms var(--ease-architectural) forwards;
+}
+.page-curtain .curtain-label {
+  opacity: 0;
+  transition: opacity 250ms;
+}
+.page-curtain[data-state='cover'] .curtain-label { opacity: 1; transition-delay: 200ms; }
+
+/* --- Word-by-word heading reveals --- */
+.split-word {
+  display: inline-block;
+  overflow: clip;
+  vertical-align: top;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+.split-word > span { display: inline-block; }
+
+/* --- Animated counters --- */
+.stat-figure {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Hero ambience --- */
+.hero-ambient {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+.hero-ambient span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.55;
+}
+.hero-ambient span:nth-child(1) {
+  width: 420px; height: 420px; left: -120px; top: -80px;
+  background: radial-gradient(circle, #e8d3ad 0%, transparent 70%);
+}
+.hero-ambient span:nth-child(2) {
+  width: 360px; height: 360px; left: 30%; bottom: -160px;
+  background: radial-gradient(circle, #cfd8c7 0%, transparent 70%);
+}
+.hero-ambient::after {
+  /* fine architectural grid */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(#183b350a 1px, transparent 1px),
+    linear-gradient(90deg, #183b350a 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at 30% 40%, #000 0%, transparent 70%);
+}
+.hero-accent {
+  background: linear-gradient(100deg, #7e8e76 0%, #7e8e76 40%, #c9a46c 50%, #7e8e76 60%, #7e8e76 100%);
+  background-size: 260% 100%;
+  background-position: 120% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero-image-plane img {
+  will-change: transform;
+}
+.hero-tilt {
+  transform: translate3d(var(--px, 0px), var(--py, 0px), 0);
+  transition: transform 900ms var(--ease-architectural);
+}
+.hero-seal-ring {
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 1px dashed #ffffff70;
+}
+.scroll-cue {
+  position: relative;
+  display: inline-block;
+  height: 34px;
+  width: 1px;
+  background: #183b3525;
+  overflow: hidden;
+}
+.scroll-cue::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-gold);
+  transform-origin: top;
+}
+.live-dot {
+  height: 6px; width: 6px; border-radius: 50%; background: var(--color-gold);
+}
+
+/* --- Value strip --- */
+.value-item svg {
+  transition: transform 500ms var(--ease-architectural), color 300ms;
+}
+
+/* --- Partner split panels --- */
+.partner-panel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.partner-panel::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: radial-gradient(600px circle at var(--mx, 80%) var(--my, 20%), #d1a66b1f, transparent 45%);
+  opacity: 0;
+  transition: opacity 500ms;
+}
+.partner-panel:hover::before { opacity: 1; }
+
+/* --- Custom cursor (desktop fine pointers only) --- */
+.cursor-ring {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 95;
+  height: 34px;
+  width: 34px;
+  margin: -17px 0 0 -17px;
+  border-radius: 50%;
+  border: 1px solid #183b3555;
+  pointer-events: none;
+  transform: translate3d(var(--cx, -100px), var(--cy, -100px), 0) scale(var(--cs, 1));
+  transition:
+    transform 140ms linear,
+    border-color 300ms,
+    background-color 300ms,
+    opacity 300ms;
+  opacity: 0;
+  display: none;
+}
+.cursor-ring[data-active='true'] {
+  --cs: 1.65;
+  border-color: #d1a66b;
+  background: #d1a66b14;
+}
+.cursor-ring[data-visible='true'] { opacity: 1; }
+
+/* --- Footer --- */
+.footer-mark {
+  -webkit-text-stroke: 1px #ffffff18;
+  color: transparent;
+}
+
+/* --- Admin --- */
+.admin-shell :is(input, select, textarea) {
+  transition: border-color 220ms, box-shadow 220ms;
+}
+.admin-shell :is(input, select, textarea):focus { box-shadow: 0 0 0 3px #d1a66b25; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-ambient span:nth-child(1) { animation: buildora-drift 18s ease-in-out infinite; }
+  .hero-ambient span:nth-child(2) { animation: buildora-drift-alt 22s ease-in-out infinite; }
+  .hero-accent { animation: buildora-sheen 2600ms 1300ms var(--ease-architectural) both; }
+  .hero-seal-ring { animation: buildora-rotate 24s linear infinite; }
+  .scroll-cue::after { animation: buildora-scroll-cue 2.4s var(--ease-architectural) infinite; }
+  @keyframes buildora-scroll-cue {
+    0% { transform: scaleY(0); transform-origin: top; }
+    45% { transform: scaleY(1); transform-origin: top; }
+    55% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+  .live-dot { animation: buildora-pulse 2.4s ease-in-out infinite; }
+  .motion-cta::before { animation: buildora-rotate 60s linear infinite; }
+
+  /* Ken Burns after the hero image has settled */
+  .hero-image-plane img {
+    animation:
+      buildora-settle 2400ms 100ms var(--ease-architectural) both,
+      buildora-ken 22s 2500ms ease-in-out infinite alternate;
+  }
+
+  /* Words rise from behind a mask, staggered */
+  [data-reveal='words'][data-motion-state='pending'] {
+    opacity: 1;
+    transform: none;
+  }
+  [data-reveal='words'][data-motion-state='pending'] .split-word > span {
+    transform: translate3d(0, 110%, 0);
+  }
+  [data-reveal='words'][data-motion-state='visible'] {
+    animation: none;
+  }
+  [data-reveal='words'][data-motion-state='visible'] .split-word > span {
+    animation: buildora-line 1000ms calc(var(--i, 0) * 55ms + var(--reveal-delay, 0ms)) var(--ease-architectural) both;
+  }
+  .page-intro h1 .split-word > span {
+    animation: buildora-line 1050ms calc(120ms + var(--i, 0) * 60ms) var(--ease-architectural) both;
+  }
+  .page-intro h1 { animation: none; }
+
+  /* Image curtain reveal */
+  [data-reveal='image'][data-motion-state='visible'] {
+    animation: buildora-curtain-in 1300ms var(--ease-architectural) both;
+  }
+
+  /* Plot diagrams draw themselves */
+  .plot-stage[data-motion-state='visible'] svg :is(path, rect) {
+    stroke-dasharray: 600;
+    animation: buildora-draw 1800ms calc(var(--reveal-delay, 0ms) + 200ms) var(--ease-architectural) both;
+    --len: 600;
+  }
+
+  /* Value strip & stats stagger */
+  .value-item[data-motion-state='visible']:nth-child(3) { --reveal-delay: 80ms; }
+  .value-item[data-motion-state='visible']:nth-child(4) { --reveal-delay: 160ms; }
+  .value-item[data-motion-state='visible']:nth-child(5) { --reveal-delay: 240ms; }
+  .stat-item:nth-child(2) { --reveal-delay: 90ms; }
+  .stat-item:nth-child(3) { --reveal-delay: 180ms; }
+  .stat-item:nth-child(4) { --reveal-delay: 270ms; }
+  .stat-item[data-motion-state='visible'] .stat-rule {
+    transform-origin: left;
+    animation: buildora-line-grow 1100ms calc(var(--reveal-delay, 0ms) + 150ms) var(--ease-architectural) both;
+  }
+  .project-card:nth-child(n + 4) { --reveal-delay: 0ms; }
+  .project-card:nth-child(3n + 2) { --reveal-delay: 90ms; }
+  .project-card:nth-child(3n + 3) { --reveal-delay: 180ms; }
+  .motion-step[data-motion-state='visible'] > span {
+    animation: buildora-rise 900ms 120ms var(--ease-architectural) both;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .value-item:hover svg { transform: translateY(-3px) rotate(-8deg); color: var(--color-forest); }
+  .project-card > div:first-child { transform-style: preserve-3d; }
+  .project-card:hover > div:first-child,
+  .project-card:focus-visible > div:first-child {
+    transform: translateY(-6px) rotateX(var(--tilt-x, 1deg)) rotateY(var(--tilt-y, 0deg));
+    box-shadow: 0 26px 40px -24px #183b3590;
+  }
+  .project-card .project-shine {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(420px circle at var(--sx, 50%) var(--sy, 50%), #ffffff2e, transparent 45%);
+    opacity: 0;
+    transition: opacity 400ms;
+    pointer-events: none;
+  }
+  .project-card:hover .project-shine { opacity: 1; }
+  .stat-item:hover .stat-figure { color: #8e7857; }
+  .stat-figure { transition: color 400ms; }
+}
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .cursor-ring { display: block; }
+}
+@media (max-width: 767px) {
+  .hero-ambient span { filter: blur(40px); opacity: 0.4; }
+  .site-header[data-scrolled='true'] > div:first-child { height: 68px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro-loader, .page-curtain, .cursor-ring { display: none !important; }
+  .site-header { transition: none; }
+  .site-header[data-hidden='true'] { transform: none; }
+  .hero-accent { color: #7e8e76; background: none; }
+  .scroll-progress { display: none; }
+}
