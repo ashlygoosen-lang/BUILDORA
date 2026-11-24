@@ -56,16 +56,24 @@ export function Footer() {
       >
         BUILDORA.
       </p>
-      <div className="relative mx-auto flex max-w-[1240px] flex-wrap justify-between gap-4 border-t border-white/15 pt-6 text-[10px] text-white/45">
-        <p>© {new Date().getFullYear()} Buildora. All rights reserved.</p>
-        <p>
+      <div className="relative mx-auto max-w-[1240px] border-t border-white/15 pt-6">
+        <p className="mb-5 text-xs leading-6 text-white/75">
+          <span className="mr-3 inline-block h-px w-6 bg-gold align-middle" aria-hidden="true" />
           Buildora is a division of{' '}
-          <a href="https://vinklife-production.up.railway.app" className="text-white/70 hover:text-gold" target="_blank" rel="noopener">
+          <a
+            href="https://vinklife-production.up.railway.app"
+            className="font-semibold text-white underline decoration-gold/60 underline-offset-4 transition-colors hover:text-gold"
+            target="_blank"
+            rel="noopener"
+          >
             VINK Group (Pty) Ltd
           </a>
           , registration number 2018/079316/07.
         </p>
-        <p>Building Better Communities, Together.</p>
+        <div className="flex flex-wrap justify-between gap-4 text-[10px] text-white/45">
+          <p>© {new Date().getFullYear()} Buildora. All rights reserved.</p>
+          <p>Building Better Communities, Together.</p>
+        </div>
       </div>
     </footer>
   )
