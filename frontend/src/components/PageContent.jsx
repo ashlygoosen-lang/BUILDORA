@@ -48,7 +48,7 @@ const pageData = {
   about: [
     'About Buildora',
     'A bigger vision. A shared future.',
-    'We bring people, land and investment together to create residential communities that make a lasting difference.',
+    'We bring people, land, investment, construction expertise and modern machinery together to create communities that make a lasting difference.',
   ],
   landowners: [
     'For landowners',
@@ -121,6 +121,17 @@ export function ContentPage({ page }) {
                 grow together. We prioritise careful planning, responsible partnerships and
                 long-term neighbourhood value.
               </p>
+              <p className="mt-4 text-sm leading-7 text-muted">
+                Alongside development, we build modern residential, commercial and industrial
+                buildings, and source the construction equipment and machinery that projects depend
+                on — for our own sites and for contractors and clients.
+              </p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Button href="/construction">Construction</Button>
+                <Button href="/equipment" secondary>
+                  Equipment &amp; Machinery
+                </Button>
+              </div>
             </div>
           </section>
           <section className="bg-[#eeede5] px-6 py-16">
@@ -300,6 +311,8 @@ export function ContentPage({ page }) {
               ['General enquiries', 'Questions about Buildora and our approach.'],
               ['Landowner enquiries', 'Explore the potential of your land.'],
               ['Investor enquiries', 'Discuss project-specific investment opportunities.'],
+              ['Construction projects', 'Plan a modern residential, commercial or industrial build.'],
+              ['Equipment & machinery', 'Source excavators, cranes, trucks and more — buy, hire or lease.'],
               [
                 'Partnership enquiries',
                 'Architects, builders and institutions: let’s collaborate.',

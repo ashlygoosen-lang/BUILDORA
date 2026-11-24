@@ -57,3 +57,14 @@ All motion uses transform, opacity and clip-path only. Everything is switched of
 - 3D tilt and light sheen on development cards; spotlight on the partner panels
 - Sticky header that frosts and condenses on scroll and hides while you scroll down
 - A sliding gold indicator for the active nav link, plus a reading-progress hairline
+
+## Services pages
+
+- `/construction`: modern residential, commercial, structural and industrial building, with a project-brief form (`kind=Construction`)
+- `/equipment`: construction equipment and machinery sourcing (buy new or used, hire, lease), with an equipment-quote form (`kind=Equipment`)
+
+Both enquiry types are validated on the server; their extra fields are stored under `details` and shown in the admin dashboard.
+
+## Photography credits
+
+Construction and machinery photos are free to use under the [Unsplash License](https://unsplash.com/license) and are served from Unsplash's CDN (`frontend/src/lib/photos.js`). Photographers: Zizi zi, Lachlan Cormie, Claus Grünstäudl, Kouji Tsuru, John Kakuk, Scott Webb, Jacek Dylag, Scott Blake, Erik Mclean, Thomas Leblanc.

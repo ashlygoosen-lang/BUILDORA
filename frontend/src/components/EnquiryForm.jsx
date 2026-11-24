@@ -1,6 +1,25 @@
 import { useRef, useState } from 'react'
 import { api } from '../lib/api'
 
+export const EQUIPMENT_CATEGORIES = [
+  'Earthmoving (excavators, dozers, graders)',
+  'Loading & haulage (loaders, TLBs, tippers)',
+  'Lifting (tower & mobile cranes, telehandlers)',
+  'Concrete (mixer trucks, pumps, batching plants)',
+  'Compaction & roadworks',
+  'Site support (generators, compressors, lighting)',
+  'Scaffolding & formwork',
+  'Other / not sure',
+]
+export const PROJECT_TYPES = [
+  'Residential (houses / townhouses)',
+  'Apartments & mixed-use',
+  'Commercial & offices',
+  'Industrial & warehousing',
+  'Renovation or extension',
+  'Other',
+]
+
 export function EnquiryForm({ kind = 'General', development }) {
   const [state, setState] = useState({ success: false, error: '', reference: '' })
   const [pending, setPending] = useState(false)
@@ -36,7 +55,13 @@ export function EnquiryForm({ kind = 'General', development }) {
       className="motion-form grid gap-5 rounded bg-[#eeede5] p-6 md:grid-cols-2 md:p-10"
     >
       <h2 className="font-heading text-2xl font-semibold md:col-span-2">
-        {kind === 'Landowner' ? 'Tell us about your land.' : 'Let’s start a conversation.'}
+        {
+          {
+            Landowner: 'Tell us about your land.',
+            Equipment: 'Request an equipment quote.',
+            Construction: 'Tell us about your project.',
+          }[kind] || 'Let’s start a conversation.'
+        }
       </h2>
       <input type="hidden" name="kind" value={kind} />
       {development && <input type="hidden" name="development" value={development} />}
@@ -56,7 +81,7 @@ export function EnquiryForm({ kind = 'General', development }) {
         <label className="text-xs">
           Enquiry type
           <select className={input} name="enquiryType" defaultValue={development ? 'Investor' : 'General'}>
-            {['General', 'Landowner', 'Investor', 'Partnership'].map((s) => (
+            {['General', 'Landowner', 'Investor', 'Construction', 'Equipment', 'Partnership'].map((s) => (
               <option key={s}>{s}</option>
             ))}
           </select>
@@ -107,8 +132,112 @@ export function EnquiryForm({ kind = 'General', development }) {
           </label>
         </>
       )}
+      {kind === 'Equipment' && (
+        <>
+          <label className="text-xs">
+            Company (optional)
+            <input className={input} name="company" maxLength={150} autoComplete="organization" />
+          </label>
+          <label className="text-xs">
+            Equipment category *
+            <select name="category" required className={input}>
+              {EQUIPMENT_CATEGORIES.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </label>
+          <label className="text-xs">
+            Machine / model required *
+            <input className={input} name="equipment" required maxLength={200} placeholder="e.g. 20-ton excavator, 6m³ mixer truck" />
+          </label>
+          <div className="grid grid-cols-2 gap-4">
+            <label className="text-xs">
+              Quantity *
+              <input className={input} name="quantity" type="number" min="1" max="500" defaultValue="1" required />
+            </label>
+            <label className="text-xs">
+              Condition
+              <select name="condition" className={input}>
+                {['New or used', 'New', 'Quality used'].map((s) => (
+                  <option key={s}>{s}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <label className="text-xs">
+            How do you want it?
+            <select name="acquisition" className={input}>
+              {['Buy', 'Hire', 'Lease / rent-to-own', 'Open to options'].map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </label>
+          <label className="text-xs">
+            Needed by
+            <select name="timeline" className={input}>
+              {['As soon as possible', 'Within 1 month', '1–3 months', '3–6 months', 'Just researching'].map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </label>
+          <label className="text-xs md:col-span-2">
+            Delivery location *
+            <input className={input} name="location" required maxLength={200} placeholder="Town / city, province" />
+          </label>
+        </>
+      )}
+      {kind === 'Construction' && (
+        <>
+          <label className="text-xs">
+            Project type *
+            <select name="projectType" required className={input}>
+              {PROJECT_TYPES.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </label>
+          <label className="text-xs">
+            Site location *
+            <input className={input} name="location" required maxLength={200} placeholder="Town / city, province" />
+          </label>
+          <label className="text-xs">
+            Approximate size
+            <input className={input} name="size" maxLength={100} placeholder="e.g. 12 units, 2 400 m²" />
+          </label>
+          <label className="text-xs">
+            Indicative budget (ZAR)
+            <select name="budget" className={input}>
+              {['Not sure yet', 'Under R2 million', 'R2m – R10m', 'R10m – R50m', 'R50m+'].map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </label>
+          <label className="text-xs">
+            Project stage
+            <select name="stage" className={input}>
+              {['Idea / early planning', 'Land secured', 'Plans drawn', 'Plans approved', 'Ready to build'].map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </label>
+          <label className="text-xs">
+            Preferred start
+            <select name="timeline" className={input}>
+              {['Within 3 months', '3–6 months', '6–12 months', 'Later / flexible'].map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </label>
+        </>
+      )}
       <label className="text-xs md:col-span-2">
-        {kind === 'Investor' ? 'Tell us about your investment interests' : 'How can we help?'}
+        {kind === 'Investor'
+          ? 'Tell us about your investment interests'
+          : kind === 'Equipment'
+            ? 'Specifications, attachments or anything else we should know'
+            : kind === 'Construction'
+              ? 'Describe the building you have in mind'
+              : 'How can we help?'}
         <textarea
           name="message"
           className={input}
@@ -134,7 +263,11 @@ export function EnquiryForm({ kind = 'General', development }) {
               ? 'Enquiry received'
               : kind === 'Landowner'
                 ? 'Submit Your Land for Assessment →'
-                : 'Send Enquiry →'}
+                : kind === 'Equipment'
+                  ? 'Request Equipment Quote →'
+                  : kind === 'Construction'
+                    ? 'Send Project Brief →'
+                    : 'Send Enquiry →'}
         </button>
         <p role="status" key={`${state.success}-${state.error}`} className={`mt-4 text-sm ${state.success ? 'text-forest' : 'text-red-700'}`}>
           {state.success

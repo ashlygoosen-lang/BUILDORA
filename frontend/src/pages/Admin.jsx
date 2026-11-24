@@ -6,6 +6,20 @@ const KEY = 'buildora-admin-token'
 const field = 'mt-1.5 block w-full rounded-sm border border-forest/20 bg-white px-3 py-2.5 text-sm outline-none focus:border-forest'
 const ENQ_STATUSES = ['New', 'In review', 'Contacted', 'Closed']
 const DEV_STATUSES = ['Proposed', 'Planning', 'Under construction', 'Completed']
+const DETAIL_LABELS = {
+  company: 'Company',
+  category: 'Category',
+  equipment: 'Machine / model',
+  quantity: 'Quantity',
+  condition: 'Condition',
+  acquisition: 'Acquisition',
+  timeline: 'Timeline',
+  location: 'Location',
+  projectType: 'Project type',
+  size: 'Size',
+  budget: 'Budget',
+  stage: 'Stage',
+}
 const fmt = (d) => new Date(d).toLocaleString('en-ZA', { dateStyle: 'medium', timeStyle: 'short' })
 
 export default function Admin() {
@@ -135,8 +149,8 @@ function Dashboard({ token, onSignOut }) {
               ['New', summary.byStatus.New],
               ['Landowner', summary.byKind.Landowner],
               ['Investor', summary.byKind.Investor],
-              ['Partnership', summary.byKind.Partnership],
-              ['Developments', summary.developments],
+              ['Construction', summary.byKind.Construction],
+              ['Equipment', summary.byKind.Equipment],
             ].map(([k, v]) => (
               <div key={k} className="rounded bg-white p-4">
                 <p className="text-[10px] uppercase tracking-[1.5px] text-muted">{k}</p>
@@ -218,7 +232,7 @@ function Enquiries({ auth, guard, onChange }) {
           />
           <select className={`${field} mt-0`} value={filters.kind} onChange={(e) => setFilters({ ...filters, kind: e.target.value })}>
             <option value="">All types</option>
-            {['Landowner', 'Investor', 'Partnership', 'General'].map((k) => (
+            {['Landowner', 'Investor', 'Construction', 'Equipment', 'Partnership', 'General'].map((k) => (
               <option key={k}>{k}</option>
             ))}
           </select>
@@ -274,6 +288,9 @@ function Enquiries({ auth, guard, onChange }) {
                 open.plots && ['Plots', open.plots],
                 open.ownership && ['Ownership', open.ownership],
                 open.arrangement && ['Arrangement', open.arrangement],
+                ...Object.entries(open.details || {})
+                  .filter(([, v]) => v !== '' && v != null)
+                  .map(([k, v]) => [DETAIL_LABELS[k] || k, v]),
               ]
                 .filter(Boolean)
                 .map(([k, v]) => (

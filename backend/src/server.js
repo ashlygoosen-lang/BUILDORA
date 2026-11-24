@@ -62,7 +62,7 @@ setInterval(() => {
 }, 60_000).unref()
 
 // ---------- Validation helpers ----------
-const KINDS = ['Landowner', 'Investor', 'Partnership', 'General']
+const KINDS = ['Landowner', 'Investor', 'Construction', 'Equipment', 'Partnership', 'General']
 const OWNERSHIP = ['Sole owner', 'Joint owner', 'Authorised representative', 'Other']
 const ARRANGEMENTS = [
   'Discuss my options',
@@ -72,6 +72,25 @@ const ARRANGEMENTS = [
   'Joint development',
 ]
 const STATUSES = ['Proposed', 'Planning', 'Under construction', 'Completed']
+const EQUIPMENT_CATEGORIES = [
+  'Earthmoving (excavators, dozers, graders)',
+  'Loading & haulage (loaders, TLBs, tippers)',
+  'Lifting (tower & mobile cranes, telehandlers)',
+  'Concrete (mixer trucks, pumps, batching plants)',
+  'Compaction & roadworks',
+  'Site support (generators, compressors, lighting)',
+  'Scaffolding & formwork',
+  'Other / not sure',
+]
+const PROJECT_TYPES = [
+  'Residential (houses / townhouses)',
+  'Apartments & mixed-use',
+  'Commercial & offices',
+  'Industrial & warehousing',
+  'Renovation or extension',
+  'Other',
+]
+const pick = (v, list, fallback) => (list.includes(text(v)) ? text(v) : fallback)
 const ENQUIRY_STATUSES = ['New', 'In review', 'Contacted', 'Closed']
 const text = (v, max = 250) => String(v ?? '').trim().slice(0, max)
 
@@ -168,6 +187,33 @@ app.post(
     if (landAssessment && (!text(b.location) || !text(b.plotSize) || !Number.isInteger(plots) || plots < 1 || plots > 10000))
       return res.status(400).json({ error: 'Please complete the land location, size and number of plots.' })
 
+    let details
+    if (rawKind === 'Equipment') {
+      const quantity = Number(text(b.quantity))
+      if (!text(b.equipment) || !text(b.location) || !Number.isInteger(quantity) || quantity < 1 || quantity > 500)
+        return res.status(400).json({ error: 'Please tell us the machine you need, the quantity and the delivery location.' })
+      details = {
+        company: text(b.company, 150),
+        category: pick(b.category, EQUIPMENT_CATEGORIES, 'Other / not sure'),
+        equipment: text(b.equipment, 200),
+        quantity,
+        condition: pick(b.condition, ['New or used', 'New', 'Quality used'], 'New or used'),
+        acquisition: pick(b.acquisition, ['Buy', 'Hire', 'Lease / rent-to-own', 'Open to options'], 'Open to options'),
+        timeline: pick(b.timeline, ['As soon as possible', 'Within 1 month', '1–3 months', '3–6 months', 'Just researching'], 'Just researching'),
+        location: text(b.location, 200),
+      }
+    } else if (rawKind === 'Construction') {
+      if (!text(b.location)) return res.status(400).json({ error: 'Please tell us where the site is.' })
+      details = {
+        projectType: pick(b.projectType, PROJECT_TYPES, 'Other'),
+        location: text(b.location, 200),
+        size: text(b.size, 100),
+        budget: pick(b.budget, ['Not sure yet', 'Under R2 million', 'R2m – R10m', 'R10m – R50m', 'R50m+'], 'Not sure yet'),
+        stage: pick(b.stage, ['Idea / early planning', 'Land secured', 'Plans drawn', 'Plans approved', 'Ready to build'], 'Idea / early planning'),
+        timeline: pick(b.timeline, ['Within 3 months', '3–6 months', '6–12 months', 'Later / flexible'], 'Later / flexible'),
+      }
+    }
+
     let document
     if (req.file && req.file.size > 0) {
       if (kind !== 'Landowner') return res.status(400).json({ error: 'Documents can only be attached to landowner enquiries.' })
@@ -195,6 +241,7 @@ app.post(
             arrangement: ARRANGEMENTS.includes(text(b.arrangement)) ? text(b.arrangement) : 'Discuss my options',
           }
         : {}),
+      ...(details ? { details } : {}),
       ...(b.development ? { development: text(b.development, 120) } : {}),
       ...(document ? { document } : {}),
     }
@@ -238,7 +285,9 @@ admin.get('/enquiries', (req, res) => {
   if (status && ENQUIRY_STATUSES.includes(status)) list = list.filter((e) => e.status === status)
   if (q) {
     const s = String(q).toLowerCase()
-    list = list.filter((e) => [e.fullName, e.email, e.reference, e.location, e.message].some((v) => v?.toLowerCase().includes(s)))
+    list = list.filter((e) =>
+      [e.fullName, e.email, e.reference, e.location, e.message, ...Object.values(e.details || {}).map(String)].some((v) => v?.toLowerCase().includes(s)),
+    )
   }
   res.json(list)
 })

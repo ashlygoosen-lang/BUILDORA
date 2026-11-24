@@ -1,4 +1,5 @@
-import { Button, Eyebrow, SectionHeading, Icon, FinalCTA, Img } from '../components/brand'
+import { Button, Eyebrow, SectionHeading, Icon, FinalCTA, Img, Photo } from '../components/brand'
+import { photos } from '../lib/photos'
 import { Transformation } from '../components/Transformation'
 import { Projects } from '../components/Projects'
 import { Counter } from '../components/motion'
@@ -31,8 +32,8 @@ export default function Home() {
             </span>
           </h1>
           <p className="hero-copy mb-8 mt-6 max-w-[390px] text-[13px] leading-[1.95] text-muted">
-            We bring landowners, investors and development expertise together to transform underutilised land into modern
-            residential communities.
+            We bring landowners, investors, construction expertise and modern machinery together to transform underutilised
+            land into modern residential communities.
           </p>
           <div className="hero-actions flex flex-wrap gap-3">
             <Button href="/landowners">I Own Land</Button>
@@ -88,7 +89,8 @@ export default function Home() {
           </span>
           {[
             ['land', 'Unlocking land potential'],
-            ['building', 'Creating quality homes'],
+            ['building', 'Building modern structures'],
+            ['excavator', 'Sourcing modern machinery'],
             ['people', 'Building lasting partnerships'],
             ['leaf', 'Shaping better communities'],
           ].map(([i, t]) => (
@@ -149,6 +151,51 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      <section className="bg-forest px-6 py-20 text-white">
+        <div className="mx-auto max-w-[1240px]">
+          <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <Eyebrow light>What we do</Eyebrow>
+              <SectionHeading>
+                Develop. Build. Equip.
+                <br />
+                One partner, land to keys.
+              </SectionHeading>
+            </div>
+            <p data-reveal className="max-w-sm text-[13px] leading-7 text-white/65">
+              From consolidating land to raising modern buildings and putting the right machinery on site, Buildora brings every
+              stage together.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              ['01', 'Develop', 'Land partnerships that turn small plots into planned communities.', '/how-it-works', null],
+              ['02', 'Build', 'Modern residential, commercial and industrial construction.', '/construction', photos.tower],
+              ['03', 'Equip', 'Construction equipment and machinery — sourced, delivered, supported.', '/equipment', photos.fleet],
+            ].map(([n, t, d, href, photo]) => (
+              <TLink key={t} href={href} label={t} data-reveal className="service-card group block">
+                <div className="relative h-[340px] overflow-hidden rounded">
+                  {photo ? (
+                    <Photo photo={photo} sizes="(max-width:767px) 100vw, 410px" className="transition duration-[1400ms] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.07]" />
+                  ) : (
+                    <Img src="/images/buildora-community.webp" alt="Planned residential community vision" className="object-cover object-[30%_center] transition duration-[1400ms] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.07]" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+                  <span className="service-arrow absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-white text-forest">
+                    <Icon name="diagonal" className="h-4 w-4" />
+                  </span>
+                  <div className="absolute inset-x-0 bottom-0 p-6">
+                    <span className="text-[10px] text-gold">{n}</span>
+                    <h3 className="font-heading mt-1 text-[28px] font-semibold tracking-[-1px]">{t}</h3>
+                    <p className="mt-2 text-xs leading-6 text-white/75">{d}</p>
+                  </div>
+                </div>
+              </TLink>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <Transformation />
 

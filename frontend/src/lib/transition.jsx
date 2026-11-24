@@ -68,6 +68,10 @@ export function TLink({ href, children, onClick, label, ...rest }) {
         onClick?.(e)
         if (e.defaultPrevented || external || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
         e.preventDefault()
+        if (href.startsWith('#')) {
+          document.getElementById(href.slice(1))?.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' })
+          return
+        }
         go(href, label ?? (typeof children === 'string' ? children : ''))
       }}
     >

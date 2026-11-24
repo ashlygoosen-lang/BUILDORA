@@ -29,6 +29,45 @@ export function Icon({ name = 'arrow', className = '' }) {
     check: <path d="m5 12 5 5L20 7" />,
     doc: <path d="M14 3H6v18h12V7l-4-4Zm0 0v4h4M9 13h6m-6 4h6" />,
     close: <path d="M6 6l12 12M18 6 6 18" />,
+    excavator: (
+      <>
+        <path d="M2 19h11M3 19a2 2 0 0 1 2-2h6a2 2 0 0 1 0 4H5a2 2 0 0 1-2-2Z" />
+        <path d="M5 17v-4h5l1 4M7 13V9h3l1 4" />
+        <path d="m11 10 5-5 4 4-2 3h-3" />
+      </>
+    ),
+    crane: <path d="M6 21V4m0 0h14M6 4l-3 3h3M6 8l4-4m-4 8 8-8m-8 12 12-12M18 4v5m-1 0h2v3h-2zM3 21h7" />,
+    truck: (
+      <>
+        <path d="M2 16V7h11v9M13 10h4l4 4v2h-2M2 16h2" />
+        <circle cx="6.5" cy="17" r="2" />
+        <circle cx="16.5" cy="17" r="2" />
+        <path d="M9 17h5" />
+      </>
+    ),
+    mixer: (
+      <>
+        <path d="M3 16V9h4l2 2v5M9 11l9-3 3 4-2 4H9" />
+        <circle cx="6" cy="17" r="2" />
+        <circle cx="17" cy="17" r="2" />
+      </>
+    ),
+    beam: <path d="M3 5h18M3 19h18M12 5v14M7 5v3m10-3v3M7 19v-3m10 3v-3" />,
+    bolt: <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" />,
+    search: (
+      <>
+        <circle cx="11" cy="11" r="6" />
+        <path d="m20 20-4.5-4.5" />
+      </>
+    ),
+    globe: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18" />
+      </>
+    ),
+    wrench: <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4 2.6-2.6Z" />,
+    chevron: <path d="m6 9 6 6 6-6" />,
   }
   return (
     <svg
@@ -191,6 +230,24 @@ export function Img({ src, alt, className = '', position, eager = false, sizes =
       fetchPriority={eager ? 'high' : undefined}
       decoding="async"
       className={`absolute inset-0 h-full w-full ${className}`}
+      style={position ? { objectPosition: position } : undefined}
+    />
+  )
+}
+
+/** Responsive photograph (object-cover) with optional srcset from lib/photos. */
+export function Photo({ photo, className = '', position, eager = false, sizes = '(max-width:767px) 100vw, 50vw' }) {
+  if (!photo) return null
+  return (
+    <img
+      src={photo.src}
+      srcSet={photo.srcSet}
+      sizes={sizes}
+      alt={photo.alt}
+      loading={eager ? 'eager' : 'lazy'}
+      fetchPriority={eager ? 'high' : undefined}
+      decoding="async"
+      className={`absolute inset-0 h-full w-full object-cover ${className}`}
       style={position ? { objectPosition: position } : undefined}
     />
   )

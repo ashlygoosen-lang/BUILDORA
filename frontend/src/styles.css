@@ -944,3 +944,73 @@
   .hero-accent { color: #7e8e76; background: none; }
   .scroll-progress { display: none; }
 }
+
+/* --- Services dropdown --- */
+.services-menu {
+  position: absolute;
+  left: 50%;
+  top: calc(100% - 14px);
+  z-index: 50;
+  padding-top: 10px;
+  visibility: hidden;
+  opacity: 0;
+  transform: translate3d(-50%, 10px, 0) scale(0.98);
+  transform-origin: top center;
+  transition:
+    opacity 220ms,
+    transform 420ms var(--ease-architectural),
+    visibility 420ms;
+}
+.services-menu[data-open='true'] {
+  visibility: visible;
+  opacity: 1;
+  transform: translate3d(-50%, 0, 0) scale(1);
+}
+.services-menu .services-item {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 300ms, transform 450ms var(--ease-architectural), background-color 250ms;
+}
+.services-menu[data-open='true'] .services-item { opacity: 1; transform: none; }
+.services-menu[data-open='true'] .services-item:nth-child(2) { transition-delay: 60ms; }
+.site-header[data-scrolled='true'] .services-menu { top: calc(100% - 10px); }
+
+/* --- Machinery marquee --- */
+.machine-marquee { overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.machine-track { display: flex; width: max-content; }
+
+/* --- Construction sector cards --- */
+.sector-card .sector-copy {
+  transition: opacity 500ms, transform 600ms var(--ease-architectural);
+}
+
+/* --- Process timeline --- */
+.build-step-line { transform-origin: left; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .machine-track { animation: buildora-marquee 38s linear infinite; }
+  .machine-marquee:hover .machine-track { animation-play-state: paused; }
+  @keyframes buildora-marquee {
+    to { transform: translate3d(-50%, 0, 0); }
+  }
+  .build-step[data-motion-state='visible'] .build-step-line {
+    animation: buildora-line-grow 1200ms calc(var(--reveal-delay, 0ms) + 100ms) var(--ease-architectural) both;
+  }
+  .build-step:nth-child(2), .sourcing-step:nth-child(2), .machine-card:nth-child(3n + 2) { --reveal-delay: 90ms; }
+  .build-step:nth-child(3), .sourcing-step:nth-child(3), .machine-card:nth-child(3n + 3) { --reveal-delay: 180ms; }
+  .build-step:nth-child(4), .sourcing-step:nth-child(4) { --reveal-delay: 270ms; }
+  .build-step:nth-child(5), .sourcing-step:nth-child(5) { --reveal-delay: 360ms; }
+  .service-card:nth-child(2) { --reveal-delay: 100ms; }
+  .service-card:nth-child(3) { --reveal-delay: 200ms; }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .sector-card .sector-copy { opacity: 0.75; transform: translateY(6px); }
+  .sector-card:hover .sector-copy { opacity: 1; transform: none; }
+  .machine-card { transition: transform 600ms var(--ease-architectural), box-shadow 600ms var(--ease-architectural); }
+  .machine-card:hover { transform: translateY(-6px); box-shadow: 0 26px 40px -26px #183b35aa; }
+  .service-card .service-arrow { transition: transform 500ms var(--ease-architectural), background-color 300ms, color 300ms; }
+  .service-card:hover .service-arrow { transform: rotate(45deg); background: var(--color-gold); color: var(--color-forest); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .services-menu, .services-menu .services-item { transition: none; }
+}

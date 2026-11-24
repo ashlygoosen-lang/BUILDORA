@@ -18,6 +18,8 @@ export function Footer() {
           {[
             ['About us', '/about'],
             ['Our developments', '/developments'],
+            ['Construction', '/construction'],
+            ['Equipment & machinery', '/equipment'],
             ['How it works', '/how-it-works'],
             ['Community impact', '/impact'],
           ].map(([l, h]) => (
